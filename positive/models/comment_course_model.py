@@ -6,8 +6,8 @@ from .user_model import CustomUser
 
 
 class CommentCourse(models.Model):
-    user=models.ForeignKey(CustomUser)
-    course=models.ForeignKey(Course)
+    user=models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    course=models.ForeignKey(Course, on_delete=models.CASCADE)
     date=models.DateTimeField(default=timezone.now, blank=True, null=True)
     message=models.CharField(max_length=500)
 
