@@ -12,5 +12,5 @@ class ImageAlbumMeetingView(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, DjangoModelPermissionsCustom, IsLogged]
     serializer_class = ImageAlbumMeetingSerializer
-    http_method_names = ['get', 'options', 'head', 'patch', 'post']
+    http_method_names = ['get', 'options', 'head', 'patch', 'post', 'delete']
     queryset = ImageAlbumMeeting.objects.all()

@@ -12,5 +12,5 @@ class VideoMeetingView(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, DjangoModelPermissionsCustom, IsLogged]
     serializer_class = VideoMeetingSerializer
-    http_method_names = ['get', 'options', 'head', 'patch', 'post']
+    http_method_names = ['get', 'options', 'head', 'patch', 'post', 'delete']
     queryset = VideoMeeting.objects.all()

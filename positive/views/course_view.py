@@ -12,5 +12,5 @@ class CourseView(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, DjangoModelPermissionsCustom, IsLogged]
     serializer_class = CourseSerializer
-    http_method_names = ['get', 'options', 'head', 'patch', 'post']
+    http_method_names = ['get', 'options', 'head', 'patch', 'post', 'delete']
     queryset = Course.objects.all()

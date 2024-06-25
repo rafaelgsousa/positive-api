@@ -12,5 +12,5 @@ class CommentCourseView(ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, DjangoModelPermissionsCustom, IsLogged]
     serializer_class = CommentCourseSerializer
-    http_method_names = ['get', 'options', 'head', 'patch', 'post']
+    http_method_names = ['get', 'options', 'head', 'patch', 'post', 'delete']
     queryset = CommentCourse.objects.all()
