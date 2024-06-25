@@ -11,8 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from permissions import (DjangoModelPermissionsCustom, IsAuthenticatedCustom,
-                         IsLogged, UsersControl)
+from permissions import DjangoModelPermissionsCustom, IsLogged
 from utils import choices
 
 from ..models import CustomUser

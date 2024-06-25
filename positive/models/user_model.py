@@ -27,18 +27,10 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
     
 class CustomUser(AbstractUser):
-    username=models.CharField(
-        _("username"),
-        max_length=150,
-        help_text=(
-            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
-        ),
-        validators=[AbstractUser.username_validator],
-    )
     email=models.EmailField(max_length=50, unique=True, null=False, blank=False)
-    phone=models.CharField()
-    second_phone=models.CharField()
-    type_account=models.CharField(max_length=7,choices=typeAccount.choices, default=typeAccount.ZERO)
+    phone=models.CharField(max_length=14, unique=True)
+    second_phone=models.CharField(max_length=14, unique=True)
+    type_account=models.CharField(max_length=7,choices=typeAccount.choices, default=typeAccount.BASIC)
     logged=models.BooleanField(default=False)
     login_erro=models.PositiveIntegerField(choices=LoginError.choices, default=LoginError.ZERO)
 
@@ -63,4 +55,4 @@ class CustomUser(AbstractUser):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERRO)
         
     def __str__(self):
-        return f'Name: {self.first_name} {self.last_name} - email: {self.email} - id: {self.id}'
+        return f'Name: {self.username} - email: {self.email} - id: {self.id}'

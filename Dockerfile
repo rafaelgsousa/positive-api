@@ -16,4 +16,4 @@ EXPOSE 8000
 # Executar o comando para coletar os arquivos estáticos
 RUN python manage.py collectstatic --noinput
 
-CMD ["bash", "-c", "python manage.py makemigrations && python manage.py migrate && daphne -b 0.0.0.0 -p 8090 project.asgi:application"]
+CMD ["bash", "-c", "python manage.py makemigrations && python manage.py migrate && daphne -b 0.0.0.0 -p 8000 project.asgi:application"]

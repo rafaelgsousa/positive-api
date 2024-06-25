@@ -2,10 +2,11 @@ from django.db import models
 from django.utils import timezone
 
 
-class News(models.Model):
+class Course(models.Model):
     title=models.CharField(max_length=500)
     date=models.DateTimeField(default=timezone.now, blank=True, null=True)
-    picture=models.ImageField(upload_to='news/%Y/%m/%d')
+    cover=models.ImageField(upload_to='cover_course/%Y/%m/%d')
+    file=models.FileField(upload_to='file_course/%Y/%m/%d')
     description=models.CharField(max_length=1000)
 
 
