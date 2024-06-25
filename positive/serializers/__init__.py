@@ -5,6 +5,7 @@ from .ebook_serializer import EBookSerializer
 from .image_album_meeting_serializer import ImageAlbumMeetingSerializer
 from .meeting_serializer import MeetingSerializer
 from .news_serializer import NewsSerializer
+from .planner_serializer import PlannerSerializer
 from .user_analysis_serializer import WheelUserAnalysisSerializer
 from .user_serializer import CustomUserSerializer
 from .video_course_serializer import VideoCourseSerializer
