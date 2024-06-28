@@ -111,12 +111,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
     'TEST_REQUEST_RENDERER_CLASSES': [
         'rest_framework.renderers.MultiPartRenderer',
         'rest_framework.renderers.JSONRenderer',
@@ -164,7 +164,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": os.getenv('SECRET_KEY'),
+    "SIGNING_KEY": os.getenv('SECRET_KEY') if os.getenv('SECRET_KEY') else 'django-insecure-5id4*6u@yp!n2ti327=%f(q*v6*&stz1k9@o^0rz=)kt3z)lb6',
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,

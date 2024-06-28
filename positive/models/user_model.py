@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
@@ -27,12 +27,20 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
     
 class CustomUser(AbstractUser):
+    id=models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True)
     email=models.EmailField(max_length=50, unique=True, null=False, blank=False)
-    phone=models.CharField(max_length=14, unique=True)
-    second_phone=models.CharField(max_length=14, unique=True)
+    phone=models.CharField(max_length=14)
     type_account=models.CharField(max_length=7,choices=typeAccount.choices, default=typeAccount.BASIC)
     logged=models.BooleanField(default=False)
     login_erro=models.PositiveIntegerField(choices=LoginError.choices, default=LoginError.ZERO)
+    username = models.CharField(
+        _("username"),
+        max_length=150,
+        unique=True,
+        blank=True
+    )
+    first_name = models.CharField(_("name"), max_length=150, blank=False)
+    last_name = models.CharField(_("last name"), max_length=1, default='',blank=True, null=True)
 
     objects = CustomUserManager()
 
@@ -40,8 +48,8 @@ class CustomUser(AbstractUser):
         try:
             user = CustomUser.objects.filter(pk=self.pk).first()
 
-            if self.is_superuser and not user and CustomUser.objects.filter(is_superuser=True).first():
-                raise PermissionDenied(detail='Unauthorized procedure.')
+            # if self.is_superuser and not user and CustomUser.objects.filter(is_superuser=True).first():
+            #     raise PermissionDenied(detail='Unauthorized procedure.')
 
             if not user:
                 self.username = self.email

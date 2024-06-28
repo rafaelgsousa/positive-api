@@ -1,4 +1,5 @@
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.models import Group, Permission
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -32,10 +33,48 @@ class CustomUserView(ModelViewSet):
             return [IsAuthenticated(), IsLogged()]
         else:
             return [permission() for permission in self.permission_classes]
-    
+
     def get_queryset(self):
         cache.clear()
         return super().get_queryset()
+
+    def create(self, request, *args, **kwargs):
+        body = request.data
+        if body.get('type_account'):
+            group = Group.objects.filter(name=body['type_account']).first()
+
+            if group:
+                body['groups'] = group.id
+            else:
+                return Response(self.create_groups(body['type_account']))
+                body['groups'] = self.create_groups(body['type_account'])
+                # return Response('Group ref the type account not exist')
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    def create_groups(self,group:str):
+        permissions = ['view', 'add', 'change', 'delete']
+        table = ['albummeeting', 'commentcourse', 'course', 'ebook', 'imagealbummeeting', 'meeting', 'news', 'planner', 'wheeluseranalysis', 'custommuser', 'videocourse', 'videomeeting', 'welcome']
+        list_perm = []
+        if group.lower() == 'basico':
+            list_perm = [perm.codename for perm in Permission.objects.all()]
+            # list_perm = [Permission.objects.get(codename=f'view_{name}').id for name in table if name != 'wheeluseranalysis']
+        if group.lower() == 'premium':
+            list_perm = [Permission.objects.get(codename=name).id for name in table]
+
+        return list_perm
+        
+        
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance).data
+        serializer['group_permissions'] = [group for group in instance.get_all_permissions()]
+        return Response(serializer)
 
     @action(detail=False, methods=['post'], url_path='login')
     def login(self, request):
@@ -59,7 +98,6 @@ class CustomUserView(ModelViewSet):
             
             if not user.is_active:
                 raise PermissionDenied(detail='error: User is inactive.')
-        
             if check_password(password, user.password):
 
                 token = RefreshToken.for_user(user)
@@ -72,11 +110,7 @@ class CustomUserView(ModelViewSet):
                 user.save(update_fields=list(['logged']))
 
                 data = CustomUserSerializer(user).data
-                data['unit_name'] = user.unit.name if user.unit else user.unit
-                data['agency_name'] = user.agency.name if user.agency else user.agency
-                data['role_name'] = user.role.name if user.role else user.role
                 data['groups'] = [group.name for group in user.groups.all()] if len(user.groups.all()) else user.groups.all()
-
                 return Response(
                     {
                         'token': str(token.access_token),
