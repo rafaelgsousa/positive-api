@@ -29,7 +29,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     id=models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True)
     email=models.EmailField(max_length=50, unique=True, null=False, blank=False)
-    phone=models.CharField(max_length=14)
+    phone=models.CharField(max_length=20)
     type_account=models.CharField(max_length=7,choices=typeAccount.choices, default=typeAccount.BASIC)
     logged=models.BooleanField(default=False)
     login_erro=models.PositiveIntegerField(choices=LoginError.choices, default=LoginError.ZERO)

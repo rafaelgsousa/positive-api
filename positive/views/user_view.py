@@ -40,33 +40,43 @@ class CustomUserView(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         body = request.data
+        body['first_name'] = body['name']
+        del body['name']
         if body.get('type_account'):
             group = Group.objects.filter(name=body['type_account']).first()
 
             if group:
-                body['groups'] = group.id
+                body['groups'] = [group.id]
             else:
-                return Response(self.create_groups(body['type_account']))
-                body['groups'] = self.create_groups(body['type_account'])
+                body['groups'] = [self.create_groups(body['type_account'])]
                 # return Response('Group ref the type account not exist')
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=body)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     def create_groups(self,group:str):
-        permissions = ['view', 'add', 'change', 'delete']
-        table = ['albummeeting', 'commentcourse', 'course', 'ebook', 'imagealbummeeting', 'meeting', 'news', 'planner', 'wheeluseranalysis', 'custommuser', 'videocourse', 'videomeeting', 'welcome']
+        type_permissions = ['view', 'add', 'change', 'delete']
+        table = ['albummeeting', 'commentcourse', 'course', 'ebook', 'imagealbummeeting', 'meeting', 'news', 'planner', 'wheeluseranalysis', 'customuser', 'videocourse', 'videomeeting', 'welcome']
         list_perm = []
-        if group.lower() == 'basico':
-            list_perm = [perm.codename for perm in Permission.objects.all()]
-            # list_perm = [Permission.objects.get(codename=f'view_{name}').id for name in table if name != 'wheeluseranalysis']
-        if group.lower() == 'premium':
-            list_perm = [Permission.objects.get(codename=name).id for name in table]
+        if group.lower().strip() == 'basico':
+            list_perm = [Permission.objects.get(codename=f'view_{name}').id for name in table if name != 'wheeluseranalysis']
+        if group.lower().strip() == 'premium':
+            list_perm = [Permission.objects.get(codename=f'view_{name}').id for name in table]
+        if group.lower().strip() == 'master':
+            for data in table:
+                if data == 'customuser':
+                    list_perm.extend([Permission.objects.get(codename=f'{name}_{data}') for name in type_permissions if name == 'view'])
+                else:
+                    list_perm.extend([Permission.objects.get(codename=f'{name}_{data}') for name in type_permissions])
+        
+        group = Group.objects.create(name=group)
+        group.permissions.set(list_perm)
+        group.save()
 
-        return list_perm
+        return group.id
         
         
     
