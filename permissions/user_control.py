@@ -9,18 +9,23 @@ class UserControl(permissions.BasePermission):
     def has_permission(self, request, view):
         action = view.action
         body = request.data
+        if action == 'create':
+            if body.get('user') and body.get('user') != request.user.id:
+                return False
         if action == 'list':
             user = CustomUser.objects.filter(email=request.user.email).first()
+            list_groups = [group.name for group in user.groups.all()]
             serializer = CustomUserSerializer(user).data
-            if 'Admin' not in serializer.groups:
+            if 'Admin' not in 'Admin' not in list_groups:
                 return False
         return True
     
     def has_object_permission(self, request, view, obj):
         user = CustomUser.objects.filter(email=request.user.email).first()
         serializer = CustomUserSerializer(user).data
-        if request.user.id != obj.id and 'Admin' not in serializer.groups:
+        list_groups = [group.name for group in user.groups.all()]
+        if serializer['id'] != str(obj.id) and 'Admin' not in list_groups:
             return False
-        if request.data.get('type_account') and 'Admin' not in serializer.groups:
+        if request.data.get('type_account') and 'Admin' not in list_groups:
             return False            
         return True

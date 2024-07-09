@@ -30,7 +30,7 @@ class CustomUser(AbstractUser):
     id=models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True)
     email=models.EmailField(max_length=50, unique=True, null=False, blank=False)
     phone=models.CharField(max_length=20)
-    type_account=models.CharField(max_length=7,choices=typeAccount.choices, default=typeAccount.BASIC)
+    type_account=models.CharField(max_length=7,choices=typeAccount.choices, default=typeAccount.FREE)
     logged=models.BooleanField(default=False)
     login_erro=models.PositiveIntegerField(choices=LoginError.choices, default=LoginError.ZERO)
     username = models.CharField(
@@ -41,6 +41,7 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(_("name"), max_length=150, blank=False)
     last_name = models.CharField(_("last name"), max_length=1, default='',blank=True, null=True)
+    score = models.IntegerField(default=0)
 
     objects = CustomUserManager()
 

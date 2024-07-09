@@ -31,6 +31,8 @@ class CustomUserView(ModelViewSet):
             return []
         elif self.action in ['logout']:
             return [IsAuthenticated(), IsLogged()]
+        elif self.action in ['top_ten']:
+            return [IsLogged()]
         else:
             return [permission() for permission in self.permission_classes]
 
@@ -85,9 +87,7 @@ class CustomUserView(ModelViewSet):
         group.permissions.set(list_perm)
         group.save()
 
-        return group.id
-        
-        
+        return group.id        
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -179,3 +179,15 @@ class CustomUserView(ModelViewSet):
         
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
+    
+    @action(detail=False, methods=['get'], url_path='topten')
+    def top_ten(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset()).order_by('-score')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

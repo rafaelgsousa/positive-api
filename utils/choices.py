@@ -8,6 +8,7 @@ class LoginError(models.IntegerChoices):
     TRES = 3
 
 class typeAccount(models.TextChoices):
-    BASIC = 'Basico'
+    FREE = 'Free'
+    BASICO = 'Basico'
     PREMIUM = 'Premium'
     MASTER = 'Master'
