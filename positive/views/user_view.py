@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from permissions import DjangoModelPermissionsCustom, IsLogged
+from permissions import DjangoModelPermissionsCustom, IsLogged, UserControl
 from utils import choices
 
 from ..models import CustomUser
@@ -21,13 +21,13 @@ from ..serializers import CustomUserSerializer
 
 class CustomUserView(ModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, DjangoModelPermissionsCustom, IsLogged]
+    permission_classes = [IsAuthenticated, DjangoModelPermissionsCustom, IsLogged, UserControl]
     serializer_class = CustomUserSerializer
     http_method_names = ['get', 'options', 'head', 'patch', 'post']
     queryset = CustomUser.objects.all()
 
     def get_permissions(self):
-        if self.action in ['login']:
+        if self.action in ['login', 'create']:
             return []
         elif self.action in ['logout']:
             return [IsAuthenticated(), IsLogged()]
@@ -40,6 +40,15 @@ class CustomUserView(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         body = request.data
+
+        if body.get('type_account') != 'Basico':
+            return Response(
+                {
+                    'message': "Procedimento não autorizado."
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
         body['first_name'] = body['name']
         del body['name']
         if body.get('type_account'):
@@ -167,3 +176,6 @@ class CustomUserView(ModelViewSet):
         except Exception as e:
             print(e)
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
