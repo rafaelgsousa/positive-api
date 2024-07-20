@@ -43,7 +43,7 @@ class CustomUserView(ModelViewSet):
     def create(self, request, *args, **kwargs):
         body = request.data
 
-        if body.get('type_account') != 'Basico':
+        if body.get('type_account') != 'Free':
             return Response(
                 {
                     'message': "Procedimento não autorizado."
@@ -72,22 +72,23 @@ class CustomUserView(ModelViewSet):
         type_permissions = ['view', 'add', 'change', 'delete']
         table = ['albummeeting', 'commentcourse', 'course', 'ebook', 'imagealbummeeting', 'meeting', 'news', 'planner', 'wheeluseranalysis', 'customuser', 'videocourse', 'videomeeting', 'welcome']
         list_perm = []
-        if group.lower().strip() == 'basico':
+        if group.lower().strip() in ('free','basico'):
             list_perm = [Permission.objects.get(codename=f'view_{name}').id for name in table if name != 'wheeluseranalysis']
         if group.lower().strip() == 'premium':
-            list_perm = [Permission.objects.get(codename=f'view_{name}').id for name in table]
+            for data in table:
+                if data == 'wheeluseranalysis':
+                    list_perm.extend([Permission.objects.get(codename=f'{name}_{data}').id for name in type_permissions])
+                else:
+                    list_perm.extend([Permission.objects.get(codename=f'view_{data}').id])
         if group.lower().strip() == 'master':
             for data in table:
-                if data == 'customuser':
-                    list_perm.extend([Permission.objects.get(codename=f'{name}_{data}') for name in type_permissions if name == 'view'])
-                else:
-                    list_perm.extend([Permission.objects.get(codename=f'{name}_{data}') for name in type_permissions])
+                list_perm.extend([Permission.objects.get(codename=f'{name}_{data}').id for name in type_permissions])
         
         group = Group.objects.create(name=group)
         group.permissions.set(list_perm)
         group.save()
 
-        return group.id        
+        return group.id    
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

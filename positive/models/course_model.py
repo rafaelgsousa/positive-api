@@ -8,6 +8,7 @@ class Course(models.Model):
     cover=models.ImageField(upload_to='cover_course/%Y/%m/%d')
     file=models.FileField(upload_to='file_course/%Y/%m/%d')
     description=models.CharField(max_length=1000)
+    free=models.BooleanField(default=False)
 
 
     def __str__(self):

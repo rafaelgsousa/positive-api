@@ -8,6 +8,7 @@ class AlbumMeeting(models.Model):
     title=models.CharField(max_length=500)
     date=models.DateTimeField(default=timezone.now, blank=True, null=True)
     meeting=models.ForeignKey(Meeting, on_delete=models.CASCADE)
+    free=models.BooleanField(default=False)
 
 
     def __str__(self):

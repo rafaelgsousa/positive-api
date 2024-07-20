@@ -9,6 +9,7 @@ class EBook(models.Model):
     date=models.DateTimeField(default=timezone.now)
     cover=models.ImageField(upload_to='cover_ebook/%Y/%m/%d', blank=True, null=True)
     file=models.FileField(upload_to='file_ebook/%Y/%m/%d')
+    free=models.BooleanField(default=False)
 
 
     def __str__(self):

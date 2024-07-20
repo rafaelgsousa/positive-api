@@ -10,6 +10,8 @@ class CommentCourse(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE)
     date=models.DateTimeField(default=timezone.now, blank=True, null=True)
     message=models.CharField(max_length=500)
+    free=models.BooleanField(default=False)
+
 
 
     def __str__(self):

@@ -9,6 +9,7 @@ class ImageAlbumMeeting(models.Model):
     date=models.DateTimeField(default=timezone.now)
     picture=models.ImageField(upload_to='album_meetings/%Y/%m/%d')
     album=models.ForeignKey(AlbumMeeting, on_delete=models.CASCADE)
+    free=models.BooleanField(default=False)
 
 
     def __str__(self):
