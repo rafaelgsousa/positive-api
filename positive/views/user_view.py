@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import Group, Permission
 from django.core.cache import cache
@@ -41,7 +43,7 @@ class CustomUserView(ModelViewSet):
         return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
-        body = request.data
+        body = deepcopy(request.data)
 
         if body.get('type_account') != 'Free':
             return Response(
@@ -94,6 +96,19 @@ class CustomUserView(ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance).data
         serializer['group_permissions'] = [group for group in instance.get_all_permissions()]
+        return Response(serializer)
+    
+    @action(detail=False, methods=['get'], url_path='search')
+    def search(self, request, *args, **kwargs):
+        body = request.data
+
+        instance = CustomUser.objects.filter(**body).first()
+
+        if not instance:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(instance).data
+
         return Response(serializer)
 
     @action(detail=False, methods=['post'], url_path='login')
