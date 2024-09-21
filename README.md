@@ -4,6 +4,22 @@
 ## <a style="text-decoration: none">Description :</a>
 <p style="text-align: justify">Servidor do Positive.</p>
 
+No terminal dentro do diretorio da API
+```bash
+$ python -m venv venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
+$ python manage.py makemigrations
+$ python manage.py migrate
+$ daphne -b 0.0.0.0 -p 9000 project.asgi:application
+```
+
+São criados automaticamente os grupos de tipos de usuários e um superuser
+```bash
+username: admin@admin.com
+password: 123456789
+```
+
 <p id="summary"></p>
 <h2> SUMMARY BY MODEL:</h2>
 <ol>

@@ -1,13 +1,13 @@
 from copy import deepcopy
 
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -15,7 +15,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from permissions import DjangoModelPermissionsCustom, IsLogged, UserControl
-from utils import choices
+from utils import choices, create_groups
 
 from ..models import CustomUser
 from ..serializers import CustomUserSerializer
@@ -56,41 +56,18 @@ class CustomUserView(ModelViewSet):
         body['first_name'] = body['name']
         del body['name']
         if body.get('type_account'):
-            group = Group.objects.filter(name=body['type_account']).first()
+            group = Group.objects.filter(name=body['type_account'].lower().strip().capitalize()).first()
 
             if group:
                 body['groups'] = [group.id]
             else:
-                body['groups'] = [self.create_groups(body['type_account'])]
-                # return Response('Group ref the type account not exist')
+                body['groups'] = [create_groups(body['type_account'].lower().strip().capitalize(), True)]
 
         serializer = self.get_serializer(data=body)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    
-    def create_groups(self,group:str):
-        type_permissions = ['view', 'add', 'change', 'delete']
-        table = ['albummeeting', 'commentcourse', 'course', 'ebook', 'imagealbummeeting', 'meeting', 'news', 'planner', 'wheeluseranalysis', 'customuser', 'videocourse', 'videomeeting', 'welcome']
-        list_perm = []
-        if group.lower().strip() in ('free','basico'):
-            list_perm = [Permission.objects.get(codename=f'view_{name}').id for name in table if name != 'wheeluseranalysis']
-        if group.lower().strip() == 'premium':
-            for data in table:
-                if data == 'wheeluseranalysis':
-                    list_perm.extend([Permission.objects.get(codename=f'{name}_{data}').id for name in type_permissions])
-                else:
-                    list_perm.extend([Permission.objects.get(codename=f'view_{data}').id])
-        if group.lower().strip() == 'master':
-            for data in table:
-                list_perm.extend([Permission.objects.get(codename=f'{name}_{data}').id for name in type_permissions])
-        
-        group = Group.objects.create(name=group)
-        group.permissions.set(list_perm)
-        group.save()
-
-        return group.id    
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
